@@ -3,7 +3,7 @@ import { FiSun, FiMoon, FiMenu, FiX, FiSearch, FiUser } from 'react-icons/fi';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../utils/helpers';
-import API from '../services/api';
+import { fetchCategories } from '../services/publicData';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,17 +23,15 @@ const Navbar = () => {
   }, []);
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const loadCategories = async () => {
       try {
-        const res = await API.get('/categories');
-        if (res.data.success) {
-          setCategories(res.data.data);
-        }
+        const data = await fetchCategories();
+        setCategories(data);
       } catch (err) {
         console.error('Error fetching categories');
       }
     };
-    fetchCategories();
+    loadCategories();
   }, []);
 
   const handleSearch = (e) => {

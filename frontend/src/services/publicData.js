@@ -30,14 +30,20 @@ export async function fetchNewsList({ search, category_id, date_from, date_to, p
     .from('news')
     .select('*, categories(name)', { count: 'exact' })
     .eq('is_deleted', false)
-    .gt('expires_at', new Date().toISOString())
     .order('created_at', { ascending: false });
 
   if (search) {
     const value = String(search).replace(/[%_]/g, '\\$&');
     query = query.or(`title.ilike.%${value}%,content.ilike.%${value}%`);
   }
-  if (category_id) query = query.eq('category_id', parseInt(category_id));
+  
+  if (category_id && category_id !== '') {
+    const cid = parseInt(category_id, 10);
+    if (!isNaN(cid)) {
+      query = query.eq('category_id', cid);
+    }
+  }
+  
   if (date_from) query = query.gte('created_at', date_from);
   if (date_to) query = query.lte('created_at', date_to);
 
@@ -69,7 +75,6 @@ export async function fetchFeaturedNews(limit = 3) {
     .select('*, categories(name)')
     .eq('is_featured', true)
     .eq('is_deleted', false)
-    .gt('expires_at', new Date().toISOString())
     .order('created_at', { ascending: false })
     .limit(limit);
 
