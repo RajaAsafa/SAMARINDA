@@ -79,6 +79,22 @@ export async function updateNews(id, payload) {
   return data;
 }
 
+export async function extendNews(id, days = 30) {
+  const newDate = new Date();
+  newDate.setDate(newDate.getDate() + days);
+  const { data, error } = await supabase
+    .from('news')
+    .update({ 
+      expires_at: newDate.toISOString(),
+      updated_at: new Date().toISOString() 
+    })
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
 export async function fetchAdminStats() {
   const { data, error } = await supabase
     .from('news')
@@ -97,6 +113,15 @@ export async function fetchAdminStats() {
 }
 
 // ─── Categories ────────────────────────────────────────────────────────────────
+
+export async function fetchCategories() {
+  const { data, error } = await supabase
+    .from('categories')
+    .select('*')
+    .order('name', { ascending: true });
+  if (error) throw error;
+  return data;
+}
 
 export async function createCategory(name) {
   const { data, error } = await supabase
@@ -122,6 +147,29 @@ export async function updateCategory(id, name) {
 export async function deleteCategory(id) {
   const { error } = await supabase
     .from('categories')
+    .delete()
+    .eq('id', id);
+  if (error) throw error;
+}
+
+// ─── Comments ──────────────────────────────────────────────────────────────────
+
+export async function fetchAdminComments() {
+  const { data, error } = await supabase
+    .from('comments')
+    .select('*, news(title)')
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  
+  return (data || []).map(c => ({
+    ...c,
+    news_title: c.news?.title || 'Unknown News'
+  }));
+}
+
+export async function deleteComment(id) {
+  const { error } = await supabase
+    .from('comments')
     .delete()
     .eq('id', id);
   if (error) throw error;

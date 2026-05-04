@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FiTrash2, FiMessageSquare } from 'react-icons/fi';
-import API from '../../services/api';
+import { fetchAdminComments, deleteComment } from '../../services/adminData';
 import { formatDate } from '../../utils/helpers';
 
 const CommentManagePage = () => {
@@ -9,15 +9,13 @@ const CommentManagePage = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetchComments();
+    loadComments();
   }, []);
 
-  const fetchComments = async () => {
+  const loadComments = async () => {
     try {
-      const res = await API.get('/admin/comments');
-      if (res.data.success) {
-        setComments(res.data.data);
-      }
+      const data = await fetchAdminComments();
+      setComments(data);
     } catch (err) {
       console.error('Fetch comments error', err);
       setError('Gagal memuat data komentar.');
@@ -31,12 +29,10 @@ const CommentManagePage = () => {
     
     try {
       setError('');
-      const res = await API.delete(`/comments/${id}`);
-      if (res.data.success) {
-        setComments(comments.filter(c => c.id !== id));
-      }
+      await deleteComment(id);
+      setComments(comments.filter(c => c.id !== id));
     } catch (err) {
-      setError(err.response?.data?.message || 'Gagal menghapus komentar.');
+      setError('Gagal menghapus komentar.');
     }
   };
 

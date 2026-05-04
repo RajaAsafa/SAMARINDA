@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FiEdit2, FiTrash2, FiPlus } from 'react-icons/fi';
-import API from '../../services/api';
+import { fetchCategories, createCategory, updateCategory, deleteCategory } from '../../services/adminData';
 
 const CategoryManagePage = () => {
   const [categories, setCategories] = useState([]);
@@ -12,15 +12,13 @@ const CategoryManagePage = () => {
   const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
-    fetchCategories();
+    loadCategories();
   }, []);
 
-  const fetchCategories = async () => {
+  const loadCategories = async () => {
     try {
-      const res = await API.get('/categories');
-      if (res.data.success) {
-        setCategories(res.data.data);
-      }
+      const data = await fetchCategories();
+      setCategories(data);
     } catch (err) {
       console.error('Fetch categories error', err);
     } finally {
@@ -36,21 +34,17 @@ const CategoryManagePage = () => {
       setError('');
       if (editingId) {
         // Update
-        const res = await API.put(`/categories/${editingId}`, { name });
-        if (res.data.success) {
-          setCategories(categories.map(c => c.id === editingId ? res.data.data : c));
-          cancelEdit();
-        }
+        const data = await updateCategory(editingId, name);
+        setCategories(categories.map(c => c.id === editingId ? data : c));
+        cancelEdit();
       } else {
         // Create
-        const res = await API.post('/categories', { name });
-        if (res.data.success) {
-          setCategories([...categories, res.data.data]);
-          setName('');
-        }
+        const data = await createCategory(name);
+        setCategories([...categories, data]);
+        setName('');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Gagal menyimpan kategori');
+      setError('Gagal menyimpan kategori. Pastikan Anda memiliki akses.');
     }
   };
 
@@ -59,12 +53,10 @@ const CategoryManagePage = () => {
     
     try {
       setError('');
-      const res = await API.delete(`/categories/${id}`);
-      if (res.data.success) {
-        setCategories(categories.filter(c => c.id !== id));
-      }
+      await deleteCategory(id);
+      setCategories(categories.filter(c => c.id !== id));
     } catch (err) {
-      setError(err.response?.data?.message || 'Gagal menghapus kategori. Pastikan tidak ada berita yang menggunakan kategori ini.');
+      setError('Gagal menghapus kategori. Pastikan tidak ada berita yang menggunakan kategori ini.');
     }
   };
 

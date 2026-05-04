@@ -26,7 +26,6 @@ const AdminLayout = () => {
           <div style={styles.avatar}>{user?.username?.charAt(0).toUpperCase()}</div>
           <div>
             <div style={{ fontSize: '14px', fontWeight: 600, color: '#fff' }}>{user?.username}</div>
-            <div style={{ fontSize: '11px', color: 'var(--blue-300)', textTransform: 'uppercase' }}>{user?.role}</div>
           </div>
         </div>
 

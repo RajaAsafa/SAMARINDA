@@ -3,7 +3,8 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { FiArrowLeft, FiUpload, FiX } from 'react-icons/fi';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import API from '../../services/api';
+import { fetchCategories, createNews, updateNews } from '../../services/adminData';
+import { fetchNewsBySlug } from '../../services/publicData';
 import { getImageUrl } from '../../utils/helpers';
 
 const NewsFormPage = () => {
@@ -33,28 +34,25 @@ const NewsFormPage = () => {
   const [videoPreview, setVideoPreview] = useState('');
 
   useEffect(() => {
-    fetchCategories();
+    loadCategories();
     if (isEdit) {
-      fetchNewsDetail();
+      loadNewsDetail();
     }
   }, [slug]);
 
-  const fetchCategories = async () => {
+  const loadCategories = async () => {
     try {
-      const res = await API.get('/categories');
-      if (res.data.success) {
-        setCategories(res.data.data);
-      }
+      const data = await fetchCategories();
+      setCategories(data);
     } catch (err) {
       console.error('Failed to fetch categories');
     }
   };
 
-  const fetchNewsDetail = async () => {
+  const loadNewsDetail = async () => {
     try {
-      const res = await API.get(`/news/slug/${slug}`);
-      if (res.data.success) {
-        const news = res.data.data;
+      const news = await fetchNewsBySlug(slug);
+      if (news) {
         setNewsId(news.id);
         setFormData({
           title: news.title,
@@ -117,10 +115,16 @@ const NewsFormPage = () => {
     const formData = new FormData();
     formData.append('file', file);
     
+    // NOTE: Masih menggunakan API backend untuk upload file.
+    // Jika backend mati, upload file akan gagal.
     const res = await API.post('/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
     return res.data.data.url;
+  };
+
+  const generateSlug = (text) => {
+    return text.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
   };
 
   const handleSubmit = async (e) => {
@@ -149,17 +153,26 @@ const NewsFormPage = () => {
         category_id: formData.category_id ? parseInt(formData.category_id) : null,
         image_url: finalImageUrl,
         video_url: finalVideoUrl,
+        updated_at: new Date().toISOString()
       };
 
       if (isEdit) {
-        await API.put(`/news/${newsId}`, payload);
+        await updateNews(newsId, payload);
       } else {
-        await API.post('/news', payload);
+        payload.slug = generateSlug(formData.title) + '-' + Date.now();
+        payload.created_at = new Date().toISOString();
+        payload.is_deleted = false;
+        // Default expires_at 30 days from now
+        const expires = new Date();
+        expires.setDate(expires.getDate() + 30);
+        payload.expires_at = expires.toISOString();
+        
+        await createNews(payload);
       }
 
       navigate('/office/berita');
     } catch (err) {
-      setError(err.response?.data?.message || 'Terjadi kesalahan saat menyimpan berita');
+      setError('Terjadi kesalahan saat menyimpan berita ke database.');
       setSubmitting(false);
     }
   };
