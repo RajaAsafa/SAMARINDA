@@ -7,7 +7,7 @@ import FilterPanel from '../components/FilterPanel';
 import NewsCard from '../components/NewsCard';
 import Pagination from '../components/Pagination';
 import SkeletonCard from '../components/SkeletonCard';
-import API from '../services/api';
+import { fetchNewsList } from '../services/publicData';
 
 const HomePage = () => {
   const [news, setNews] = useState([]);
@@ -39,16 +39,9 @@ const HomePage = () => {
   const fetchNews = async () => {
     setLoading(true);
     try {
-      const params = {
-        ...filters,
-        limit: 9
-      };
-      
-      const res = await API.get('/news', { params });
-      if (res.data.success) {
-        setNews(res.data.data);
-        setPagination(res.data.pagination);
-      }
+      const result = await fetchNewsList({ ...filters, limit: 9 });
+      setNews(result.data);
+      setPagination(result.pagination);
     } catch (err) {
       console.error('Error fetching news:', err);
     } finally {

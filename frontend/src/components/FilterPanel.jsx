@@ -1,22 +1,21 @@
 import { useState, useEffect } from 'react';
-import API from '../services/api';
+import { fetchCategories } from '../services/publicData';
 
 const FilterPanel = ({ filters, onFilterChange }) => {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const loadCategories = async () => {
       try {
-        const res = await API.get('/categories');
-        if (res.data.success) {
-          setCategories(res.data.data);
-        }
+        const data = await fetchCategories();
+        setCategories(data);
       } catch (err) {
         console.error('Error fetching categories for filter');
       }
     };
-    fetchCategories();
+    loadCategories();
   }, []);
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;

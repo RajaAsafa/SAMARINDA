@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getImageUrl, formatDisplayDate } from '../utils/helpers';
-import API from '../services/api';
+import { fetchFeaturedNews } from '../services/publicData';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 
 const HeroSection = () => {
@@ -9,18 +9,17 @@ const HeroSection = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
-    const fetchFeatured = async () => {
+    const loadFeatured = async () => {
       try {
-        const res = await API.get('/news/featured');
-        if (res.data.success) {
-          setFeatured(res.data.data);
-        }
+        const data = await fetchFeaturedNews(3);
+        setFeatured(data);
       } catch (err) {
         console.error('Failed to fetch featured news');
       }
     };
-    fetchFeatured();
+    loadFeatured();
   }, []);
+
 
   useEffect(() => {
     if (featured.length <= 1) return;

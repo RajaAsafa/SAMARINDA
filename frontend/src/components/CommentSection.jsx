@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import API from '../services/api';
+import { fetchCommentsByNewsId, postComment } from '../services/publicData';
 import { formatDisplayDate } from '../utils/helpers';
 import { FiMessageSquare, FiSend, FiUser } from 'react-icons/fi';
 
@@ -12,15 +12,13 @@ const CommentSection = ({ newsId }) => {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    fetchComments();
+    loadComments();
   }, [newsId]);
 
-  const fetchComments = async () => {
+  const loadComments = async () => {
     try {
-      const res = await API.get(`/news/${newsId}/comments`);
-      if (res.data.success) {
-        setComments(res.data.data);
-      }
+      const data = await fetchCommentsByNewsId(newsId);
+      setComments(data);
     } catch (err) {
       console.error('Fetch comments error:', err);
     } finally {
@@ -40,19 +38,17 @@ const CommentSection = ({ newsId }) => {
     setSuccess(false);
 
     try {
-      const res = await API.post('/comments', {
+      await postComment({
         news_id: newsId,
         name: formData.name,
         content: formData.content
       });
 
-      if (res.data.success) {
-        setSuccess(true);
-        setFormData({ name: '', content: '' });
-        fetchComments();
-        // Hide success message after 3 seconds
-        setTimeout(() => setSuccess(false), 3000);
-      }
+      setSuccess(true);
+      setFormData({ name: '', content: '' });
+      loadComments();
+      // Hide success message after 3 seconds
+      setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
       setError('Gagal mengirim komentar. Silakan coba lagi.');
     } finally {

@@ -5,7 +5,7 @@ import Footer from '../components/Footer';
 import NewsCard from '../components/NewsCard';
 import Pagination from '../components/Pagination';
 import SkeletonCard from '../components/SkeletonCard';
-import API from '../services/api';
+import { fetchNewsList, fetchCategories } from '../services/publicData';
 
 const CategoryPage = () => {
   const { id } = useParams();
@@ -21,28 +21,24 @@ const CategoryPage = () => {
   }, [id]);
 
   useEffect(() => {
-    fetchNews();
+    loadNews();
     // Try to get category name from categories list
-    const fetchCategoryName = async () => {
+    const loadCategoryName = async () => {
       try {
-        const res = await API.get('/categories');
-        const cat = res.data.data.find(c => c.id === parseInt(id));
+        const categories = await fetchCategories();
+        const cat = categories.find(c => c.id === parseInt(id));
         if (cat) setCategoryName(cat.name);
       } catch (err) {}
     };
-    fetchCategoryName();
+    loadCategoryName();
   }, [id, page]);
 
-  const fetchNews = async () => {
+  const loadNews = async () => {
     setLoading(true);
     try {
-      const res = await API.get('/news', { 
-        params: { category_id: id, limit: 9, page } 
-      });
-      if (res.data.success) {
-        setNews(res.data.data);
-        setPagination(res.data.pagination);
-      }
+      const result = await fetchNewsList({ category_id: id, limit: 9, page });
+      setNews(result.data);
+      setPagination(result.pagination);
     } catch (err) {
       console.error('Error fetching category news:', err);
     } finally {
