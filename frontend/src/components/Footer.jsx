@@ -5,7 +5,8 @@ const Footer = () => {
       <div className="container" style={styles.container}>
         <div style={styles.brandGroup}>
           <div style={styles.brand}>
-            Samarinda<span style={styles.brandAccent}>Terbaru</span>
+            <img src="/logo.png" alt="Logo" style={styles.logo} />
+            <span>Samarinda<span style={styles.brandAccent}>Terbaru</span></span>
           </div>
           <p style={styles.desc}>
             Portal berita digital modern yang menyajikan informasi terkini untuk warga Samarinda, Kalimantan Timur.
@@ -68,11 +69,18 @@ const styles = {
     maxWidth: '350px',
   },
   brand: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
     fontFamily: 'var(--font-display)',
     fontSize: '24px',
     fontWeight: 900,
     color: '#fff',
     marginBottom: '16px',
+  },
+  logo: {
+    height: '32px',
+    width: 'auto',
   },
   brandAccent: {
     color: 'var(--blue-400)',

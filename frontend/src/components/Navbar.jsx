@@ -49,9 +49,9 @@ const Navbar = () => {
   return (
     <header style={{...styles.header, ...(isScrolled ? styles.headerScrolled : {})}} className={isScrolled ? (theme === 'dark' ? 'glass-dark' : 'glass') : ''}>
       <div className="container" style={styles.container}>
-        {/* Brand */}
         <Link to="/" style={styles.brand}>
-          Samarinda<span style={styles.brandAccent}>Terbaru</span>
+          <img src="/logo.png" alt="Logo" style={styles.logo} />
+          <span>Samarinda<span style={styles.brandAccent}>Terbaru</span></span>
         </Link>
 
         {/* Desktop Nav */}
@@ -147,10 +147,17 @@ const styles = {
     height: '70px',
   },
   brand: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
     fontFamily: 'var(--font-display)',
     fontSize: '24px',
     fontWeight: 900,
     color: 'var(--ink)',
+  },
+  logo: {
+    height: '40px',
+    width: 'auto',
   },
   brandAccent: {
     color: 'var(--blue-500)',
