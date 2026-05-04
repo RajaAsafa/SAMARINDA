@@ -15,8 +15,8 @@ module.exports = {
   async create(req, res) {
     try {
       const { news_id, name, content } = req.body;
-      if (!name || !content) return res.status(400).json({ success: false, message: 'Nama dan komentar wajib diisi.' });
-      const comment = await commentModel.create({ news_id, name, content });
+      if (!news_id || !name || !content) return res.status(400).json({ success: false, message: 'Berita, nama, dan komentar wajib diisi.' });
+      const comment = await commentModel.create({ news_id: parseInt(news_id), name: name.trim(), content: content.trim() });
       res.status(201).json({ success: true, message: 'Komentar berhasil ditambahkan.', data: comment });
     } catch (err) {
       console.error(err);

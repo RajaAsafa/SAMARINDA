@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import api from '../services/api';
+import API from '../services/api';
 import { formatDisplayDate } from '../utils/helpers';
 import { FiMessageSquare, FiSend, FiUser } from 'react-icons/fi';
 
@@ -17,7 +17,7 @@ const CommentSection = ({ newsId }) => {
 
   const fetchComments = async () => {
     try {
-      const res = await api.get(`/news/${newsId}/comments`);
+      const res = await API.get(`/news/${newsId}/comments`);
       if (res.data.success) {
         setComments(res.data.data);
       }
@@ -40,7 +40,7 @@ const CommentSection = ({ newsId }) => {
     setSuccess(false);
 
     try {
-      const res = await api.post('/comments', {
+      const res = await API.post('/comments', {
         news_id: newsId,
         name: formData.name,
         content: formData.content

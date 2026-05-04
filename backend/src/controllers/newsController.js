@@ -67,7 +67,13 @@ module.exports = {
       
       const news = await newsModel.create({ title, slug, content, image_url, video_url, category_id: category_id ? parseInt(category_id) : null, is_featured: is_featured || false });
       res.status(201).json({ success: true, message: 'Berita berhasil ditambahkan.', data: news });
-    } catch (err) { console.error(err); res.status(500).json({ success: false, message: 'Gagal menambahkan berita.' }); }
+    } catch (err) {
+      console.error(err);
+      if (err.code === '23505' || err.message?.includes('duplicate')) {
+        return res.status(409).json({ success: false, message: 'Slug berita sudah digunakan.' });
+      }
+      res.status(500).json({ success: false, message: 'Gagal menambahkan berita.' });
+    }
   },
 
   async update(req, res) {
@@ -81,7 +87,12 @@ module.exports = {
       const news = await newsModel.update(parseInt(req.params.id), { title, slug, content, image_url, video_url, category_id: category_id ? parseInt(category_id) : null, is_featured });
       if (!news) return res.status(404).json({ success: false, message: 'Berita tidak ditemukan.' });
       res.json({ success: true, message: 'Berita berhasil diperbarui.', data: news });
-    } catch (err) { res.status(500).json({ success: false, message: 'Gagal memperbarui berita.' }); }
+    } catch (err) {
+      if (err.code === '23505' || err.message?.includes('duplicate')) {
+        return res.status(409).json({ success: false, message: 'Slug berita sudah digunakan.' });
+      }
+      res.status(500).json({ success: false, message: 'Gagal memperbarui berita.' });
+    }
   },
 
   async remove(req, res) {

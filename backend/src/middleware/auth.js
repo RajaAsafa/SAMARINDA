@@ -1,14 +1,34 @@
-const jwt = require('jsonwebtoken');
-require('dotenv').config();
+const { supabaseAdmin } = require('../config/db');
 
-module.exports = (req, res, next) => {
+module.exports = async (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ success: false, message: 'Akses ditolak. Token tidak ditemukan.' });
   }
+
   try {
-    const decoded = jwt.verify(authHeader.split(' ')[1], process.env.JWT_SECRET);
-    req.user = decoded;
+    const token = authHeader.split(' ')[1];
+    const { data: authData, error: authError } = await supabaseAdmin.auth.getUser(token);
+
+    if (authError || !authData.user) {
+      return res.status(401).json({ success: false, message: 'Token tidak valid atau sudah kadaluarsa.' });
+    }
+
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .select('id, username, role, created_at, updated_at')
+      .eq('id', authData.user.id)
+      .single();
+
+    if (profileError || !profile) {
+      return res.status(403).json({ success: false, message: 'Profil pengguna tidak ditemukan.' });
+    }
+
+    req.user = {
+      ...profile,
+      email: authData.user.email,
+    };
+
     next();
   } catch (err) {
     return res.status(401).json({ success: false, message: 'Token tidak valid atau sudah kadaluarsa.' });

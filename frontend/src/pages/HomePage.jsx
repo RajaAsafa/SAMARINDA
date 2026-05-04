@@ -7,7 +7,7 @@ import FilterPanel from '../components/FilterPanel';
 import NewsCard from '../components/NewsCard';
 import Pagination from '../components/Pagination';
 import SkeletonCard from '../components/SkeletonCard';
-import api from '../services/api';
+import API from '../services/api';
 
 const HomePage = () => {
   const [news, setNews] = useState([]);
@@ -44,7 +44,7 @@ const HomePage = () => {
         limit: 9
       };
       
-      const res = await api.get('/news', { params });
+      const res = await API.get('/news', { params });
       if (res.data.success) {
         setNews(res.data.data);
         setPagination(res.data.pagination);

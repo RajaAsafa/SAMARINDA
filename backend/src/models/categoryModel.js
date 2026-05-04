@@ -1,31 +1,71 @@
-const pool = require('../config/db');
+const { supabaseAdmin } = require('../config/db');
 
 const categoryModel = {
   async getAll() {
-    const result = await pool.query('SELECT * FROM categories ORDER BY name ASC');
-    return result.rows;
+    const { data, error } = await supabaseAdmin
+      .from('categories')
+      .select('*')
+      .order('name', { ascending: true });
+
+    if (error) throw error;
+    return data;
   },
+
   async getById(id) {
-    const result = await pool.query('SELECT * FROM categories WHERE id = $1', [id]);
-    return result.rows[0];
+    const { data, error } = await supabaseAdmin
+      .from('categories')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (error) throw error;
+    return data;
   },
+
   async create(name) {
-    const result = await pool.query('INSERT INTO categories (name) VALUES ($1) RETURNING *', [name]);
-    return result.rows[0];
+    const { data, error } = await supabaseAdmin
+      .from('categories')
+      .insert({ name })
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    return data;
   },
+
   async update(id, name) {
-    const result = await pool.query('UPDATE categories SET name = $1 WHERE id = $2 RETURNING *', [name, id]);
-    return result.rows[0];
+    const { data, error } = await supabaseAdmin
+      .from('categories')
+      .update({ name, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select('*')
+      .maybeSingle();
+
+    if (error) throw error;
+    return data;
   },
+
   async delete(id) {
-    const result = await pool.query('DELETE FROM categories WHERE id = $1 RETURNING *', [id]);
-    return result.rows[0];
+    const { data, error } = await supabaseAdmin
+      .from('categories')
+      .delete()
+      .eq('id', id)
+      .select('*')
+      .maybeSingle();
+
+    if (error) throw error;
+    return data;
   },
+
   async getNewsCount(id) {
-    const result = await pool.query(
-      'SELECT COUNT(*) FROM news WHERE category_id = $1 AND is_deleted = false', [id]
-    );
-    return parseInt(result.rows[0].count);
+    const { count, error } = await supabaseAdmin
+      .from('news')
+      .select('id', { count: 'exact', head: true })
+      .eq('category_id', id)
+      .eq('is_deleted', false);
+
+    if (error) throw error;
+    return count || 0;
   },
 };
 

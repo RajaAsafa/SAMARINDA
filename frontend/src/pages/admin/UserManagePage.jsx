@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FiTrash2, FiUserPlus, FiUser } from 'react-icons/fi';
-import api from '../../services/api';
+import API from '../../services/api';
 import { formatDate } from '../../utils/helpers';
 import { useAuth } from '../../context/AuthContext';
 
@@ -25,7 +25,7 @@ const UserManagePage = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await api.get('/admin/users');
+      const res = await API.get('/admin/users');
       if (res.data.success) {
         setUsers(res.data.data);
       }
@@ -44,7 +44,7 @@ const UserManagePage = () => {
     try {
       setError('');
       setSuccess('');
-      const res = await api.post('/admin/users', { username, password, role });
+      const res = await API.post('/admin/users', { username, password, role });
       if (res.data.success) {
         setUsers([...users, res.data.data]);
         setUsername('');
@@ -63,7 +63,7 @@ const UserManagePage = () => {
     try {
       setError('');
       setSuccess('');
-      const res = await api.delete(`/admin/users/${id}`);
+      const res = await API.delete(`/admin/users/${id}`);
       if (res.data.success) {
         setUsers(users.filter(u => u.id !== id));
         setSuccess(res.data.message);

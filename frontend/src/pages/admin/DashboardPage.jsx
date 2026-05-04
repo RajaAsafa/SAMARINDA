@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FiFileText, FiAlertCircle, FiCheckCircle, FiStar } from 'react-icons/fi';
-import api from '../../services/api';
+import API from '../../services/api';
 
 const DashboardPage = () => {
   const [stats, setStats] = useState({ total: 0, active: 0, expired: 0, featured: 0 });
@@ -10,7 +10,7 @@ const DashboardPage = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await api.get('/admin/news/stats');
+        const res = await API.get('/admin/news/stats');
         if (res.data.success) {
           setStats(res.data.data);
         }

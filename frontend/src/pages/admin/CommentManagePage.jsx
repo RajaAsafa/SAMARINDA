@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FiTrash2, FiMessageSquare } from 'react-icons/fi';
-import api from '../../services/api';
+import API from '../../services/api';
 import { formatDate } from '../../utils/helpers';
 
 const CommentManagePage = () => {
@@ -14,7 +14,7 @@ const CommentManagePage = () => {
 
   const fetchComments = async () => {
     try {
-      const res = await api.get('/admin/comments');
+      const res = await API.get('/admin/comments');
       if (res.data.success) {
         setComments(res.data.data);
       }
@@ -31,7 +31,7 @@ const CommentManagePage = () => {
     
     try {
       setError('');
-      const res = await api.delete(`/comments/${id}`);
+      const res = await API.delete(`/comments/${id}`);
       if (res.data.success) {
         setComments(comments.filter(c => c.id !== id));
       }

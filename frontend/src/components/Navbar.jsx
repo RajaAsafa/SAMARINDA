@@ -3,7 +3,7 @@ import { FiSun, FiMoon, FiMenu, FiX, FiSearch, FiUser } from 'react-icons/fi';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../utils/helpers';
-import api from '../services/api';
+import API from '../services/api';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -25,7 +25,7 @@ const Navbar = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await api.get('/categories');
+        const res = await API.get('/categories');
         if (res.data.success) {
           setCategories(res.data.data);
         }

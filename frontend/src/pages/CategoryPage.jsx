@@ -5,7 +5,7 @@ import Footer from '../components/Footer';
 import NewsCard from '../components/NewsCard';
 import Pagination from '../components/Pagination';
 import SkeletonCard from '../components/SkeletonCard';
-import api from '../services/api';
+import API from '../services/api';
 
 const CategoryPage = () => {
   const { id } = useParams();
@@ -25,7 +25,7 @@ const CategoryPage = () => {
     // Try to get category name from categories list
     const fetchCategoryName = async () => {
       try {
-        const res = await api.get('/categories');
+        const res = await API.get('/categories');
         const cat = res.data.data.find(c => c.id === parseInt(id));
         if (cat) setCategoryName(cat.name);
       } catch (err) {}
@@ -36,7 +36,7 @@ const CategoryPage = () => {
   const fetchNews = async () => {
     setLoading(true);
     try {
-      const res = await api.get('/news', { 
+      const res = await API.get('/news', { 
         params: { category_id: id, limit: 9, page } 
       });
       if (res.data.success) {

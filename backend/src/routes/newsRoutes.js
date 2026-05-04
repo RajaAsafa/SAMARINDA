@@ -6,8 +6,8 @@ const authMiddleware = require('../middleware/auth');
 // Public
 router.get('/news/featured', newsController.getFeatured);
 router.get('/news', newsController.getAll);
-router.get('/news/:id', newsController.getById);
 router.get('/news/slug/:slug', newsController.getBySlug);
+router.get('/news/:id', newsController.getById);
 
 // Admin (protected)
 router.get('/admin/news/stats', authMiddleware, newsController.getStats);

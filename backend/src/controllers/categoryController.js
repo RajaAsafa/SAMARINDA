@@ -15,7 +15,7 @@ module.exports = {
       const category = await categoryModel.create(name.trim());
       res.status(201).json({ success: true, message: 'Kategori berhasil ditambahkan.', data: category });
     } catch (err) {
-      if (err.code === '23505') return res.status(409).json({ success: false, message: 'Kategori sudah ada.' });
+      if (err.code === '23505' || err.message?.includes('duplicate')) return res.status(409).json({ success: false, message: 'Kategori sudah ada.' });
       res.status(500).json({ success: false, message: 'Gagal menambahkan kategori.' });
     }
   },
@@ -28,7 +28,7 @@ module.exports = {
       if (!category) return res.status(404).json({ success: false, message: 'Kategori tidak ditemukan.' });
       res.json({ success: true, message: 'Kategori berhasil diperbarui.', data: category });
     } catch (err) {
-      if (err.code === '23505') return res.status(409).json({ success: false, message: 'Nama kategori sudah ada.' });
+      if (err.code === '23505' || err.message?.includes('duplicate')) return res.status(409).json({ success: false, message: 'Nama kategori sudah ada.' });
       res.status(500).json({ success: false, message: 'Gagal memperbarui kategori.' });
     }
   },

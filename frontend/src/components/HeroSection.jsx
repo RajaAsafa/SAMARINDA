@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getImageUrl, formatDisplayDate } from '../utils/helpers';
-import api from '../services/api';
+import API from '../services/api';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 
 const HeroSection = () => {
@@ -11,7 +11,7 @@ const HeroSection = () => {
   useEffect(() => {
     const fetchFeatured = async () => {
       try {
-        const res = await api.get('/news/featured');
+        const res = await API.get('/news/featured');
         if (res.data.success) {
           setFeatured(res.data.data);
         }

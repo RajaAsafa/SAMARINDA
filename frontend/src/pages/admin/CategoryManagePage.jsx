@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FiEdit2, FiTrash2, FiPlus } from 'react-icons/fi';
-import api from '../../services/api';
+import API from '../../services/api';
 
 const CategoryManagePage = () => {
   const [categories, setCategories] = useState([]);
@@ -17,7 +17,7 @@ const CategoryManagePage = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await api.get('/categories');
+      const res = await API.get('/categories');
       if (res.data.success) {
         setCategories(res.data.data);
       }
@@ -36,14 +36,14 @@ const CategoryManagePage = () => {
       setError('');
       if (editingId) {
         // Update
-        const res = await api.put(`/categories/${editingId}`, { name });
+        const res = await API.put(`/categories/${editingId}`, { name });
         if (res.data.success) {
           setCategories(categories.map(c => c.id === editingId ? res.data.data : c));
           cancelEdit();
         }
       } else {
         // Create
-        const res = await api.post('/categories', { name });
+        const res = await API.post('/categories', { name });
         if (res.data.success) {
           setCategories([...categories, res.data.data]);
           setName('');
@@ -59,7 +59,7 @@ const CategoryManagePage = () => {
     
     try {
       setError('');
-      const res = await api.delete(`/categories/${id}`);
+      const res = await API.delete(`/categories/${id}`);
       if (res.data.success) {
         setCategories(categories.filter(c => c.id !== id));
       }

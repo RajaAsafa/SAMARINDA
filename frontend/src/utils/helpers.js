@@ -23,7 +23,8 @@ export const useTheme = () => {
 export const getImageUrl = (url) => {
   if (!url) return 'https://via.placeholder.com/800x450.png?text=Samarinda+Terbaru';
   if (url.startsWith('http')) return url;
-  return `http://localhost:5000${url}`;
+  const apiUrl = import.meta.env.VITE_API_URL;
+  return `${apiUrl.replace(/\/api\/?$/, '')}${url}`;
 };
 
 export const formatDate = (dateStr) => {

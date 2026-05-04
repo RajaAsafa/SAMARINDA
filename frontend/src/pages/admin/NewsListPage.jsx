@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiEdit2, FiTrash2, FiClock, FiPlus, FiStar } from 'react-icons/fi';
-import api from '../../services/api';
+import API from '../../services/api';
 import Pagination from '../../components/Pagination';
 import { formatDate } from '../../utils/helpers';
 
@@ -25,7 +25,7 @@ const NewsListPage = () => {
   const fetchNews = async () => {
     setLoading(true);
     try {
-      const res = await api.get('/admin/news', { params: { ...filters, limit: 10 } });
+      const res = await API.get('/admin/news', { params: { ...filters, limit: 10 } });
       if (res.data.success) {
         setNews(res.data.data);
         setPagination(res.data.pagination);
@@ -44,7 +44,7 @@ const NewsListPage = () => {
   const handleDelete = async (id, title) => {
     if (!window.confirm(`Hapus berita "${title}"?`)) return;
     try {
-      const res = await api.delete(`/news/${id}`);
+      const res = await API.delete(`/news/${id}`);
       if (res.data.success) fetchNews();
     } catch (err) {
       alert('Gagal menghapus berita');
@@ -54,7 +54,7 @@ const NewsListPage = () => {
   const handleExtend = async (id) => {
     if (!window.confirm('Perpanjang masa aktif berita ini selama 30 hari?')) return;
     try {
-      const res = await api.patch(`/news/${id}/extend`, { days: 30 });
+      const res = await API.patch(`/news/${id}/extend`, { days: 30 });
       if (res.data.success) {
         alert('Masa aktif berhasil diperpanjang');
         fetchNews();

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import api from '../services/api';
+import API from '../services/api';
 
 const FilterPanel = ({ filters, onFilterChange }) => {
   const [categories, setCategories] = useState([]);
@@ -7,7 +7,7 @@ const FilterPanel = ({ filters, onFilterChange }) => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await api.get('/categories');
+        const res = await API.get('/categories');
         if (res.data.success) {
           setCategories(res.data.data);
         }

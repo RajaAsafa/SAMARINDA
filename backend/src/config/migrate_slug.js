@@ -1,37 +1,37 @@
-const db = require('./db');
+const { supabaseAdmin } = require('./db');
+
+const generateSlug = (title) => title
+  .toLowerCase()
+  .replace(/[^\w\s-]/g, '')
+  .replace(/\s+/g, '-')
+  .replace(/-+/g, '-')
+  .trim();
 
 async function migrate() {
   try {
-    console.log('🔄 Memulai migrasi slug...');
-    
-    // 1. Tambah kolom slug
-    await db.query('ALTER TABLE news ADD COLUMN IF NOT EXISTS slug VARCHAR(255) UNIQUE');
-    console.log('✅ Kolom slug berhasil ditambahkan (atau sudah ada).');
+    console.log('Memulai migrasi slug Supabase...');
 
-    // 2. Ambil semua berita yang belum punya slug
-    const res = await db.query('SELECT id, title FROM news WHERE slug IS NULL');
-    const newsItems = res.rows;
+    const { data, error } = await supabaseAdmin
+      .from('news')
+      .select('id, title')
+      .is('slug', null);
 
-    console.log(`📝 Ditemukan ${newsItems.length} berita tanpa slug. Menghasilkan slug...`);
+    if (error) throw error;
 
-    for (const item of newsItems) {
-      let slug = item.title
-        .toLowerCase()
-        .replace(/[^\w\s-]/g, '') // Hapus karakter non-alfanumerik
-        .replace(/\s+/g, '-')     // Ganti spasi dengan -
-        .replace(/-+/g, '-')      // Hapus - ganda
-        .trim();
-      
-      // Tambahkan ID di belakang untuk memastikan keunikan jika terjadi tabrakan
-      const finalSlug = `${slug}-${item.id}`;
-      
-      await db.query('UPDATE news SET slug = $1 WHERE id = $2', [finalSlug, item.id]);
+    for (const item of data) {
+      const slug = `${generateSlug(item.title)}-${item.id}`;
+      const { error: updateError } = await supabaseAdmin
+        .from('news')
+        .update({ slug })
+        .eq('id', item.id);
+
+      if (updateError) throw updateError;
     }
 
-    console.log('✅ Migrasi slug selesai!');
+    console.log(`Migrasi slug selesai. ${data.length} berita diperbarui.`);
     process.exit(0);
   } catch (err) {
-    console.error('❌ Terjadi kesalahan migrasi:', err);
+    console.error('Terjadi kesalahan migrasi:', err);
     process.exit(1);
   }
 }

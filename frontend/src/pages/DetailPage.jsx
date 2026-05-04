@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CommentSection from '../components/CommentSection';
-import api from '../services/api';
+import API from '../services/api';
 import { getImageUrl, formatDisplayDate } from '../utils/helpers';
 import { FiClock, FiTag, FiArrowLeft } from 'react-icons/fi';
 
@@ -15,7 +15,7 @@ const DetailPage = () => {
   useEffect(() => {
     const fetchDetail = async () => {
       try {
-        const res = await api.get(`/news/slug/${slug}`);
+        const res = await API.get(`/news/slug/${slug}`);
         if (res.data.success) {
           setNews(res.data.data);
         }

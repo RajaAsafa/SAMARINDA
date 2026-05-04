@@ -3,7 +3,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { FiArrowLeft, FiUpload, FiX } from 'react-icons/fi';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import api from '../../services/api';
+import API from '../../services/api';
 import { getImageUrl } from '../../utils/helpers';
 
 const NewsFormPage = () => {
@@ -41,7 +41,7 @@ const NewsFormPage = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await api.get('/categories');
+      const res = await API.get('/categories');
       if (res.data.success) {
         setCategories(res.data.data);
       }
@@ -52,7 +52,7 @@ const NewsFormPage = () => {
 
   const fetchNewsDetail = async () => {
     try {
-      const res = await api.get(`/news/slug/${slug}`);
+      const res = await API.get(`/news/slug/${slug}`);
       if (res.data.success) {
         const news = res.data.data;
         setNewsId(news.id);
@@ -117,7 +117,7 @@ const NewsFormPage = () => {
     const formData = new FormData();
     formData.append('file', file);
     
-    const res = await api.post('/upload', formData, {
+    const res = await API.post('/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
     return res.data.data.url;
@@ -152,9 +152,9 @@ const NewsFormPage = () => {
       };
 
       if (isEdit) {
-        await api.put(`/news/${newsId}`, payload);
+        await API.put(`/news/${newsId}`, payload);
       } else {
-        await api.post('/news', payload);
+        await API.post('/news', payload);
       }
 
       navigate('/office/berita');
