@@ -13,12 +13,12 @@ async function seed() {
   try {
     console.log('Menjalankan seed data Supabase...');
 
-    const existingAdmin = await userModel.findByUsername('admin');
+    const existingAdmin = await userModel.findByUsername('raja');
     if (!existingAdmin) {
-      await userModel.create('admin', 'admin123', 'admin');
-      console.log('Admin user dibuat: admin / admin123');
+      await userModel.create('raja', 'sdsdsdddsd', 'admin');
+      console.log('Admin user dibuat: raja / sdsdsdddsd');
     } else {
-      console.log('Admin user sudah ada, dilewati.');
+      console.log('Admin user "raja" sudah ada, dilewati.');
     }
 
     const categories = ['Politik', 'Ekonomi', 'Olahraga', 'Teknologi', 'Budaya', 'Kesehatan', 'Pendidikan'];
@@ -69,7 +69,7 @@ async function seed() {
     }
 
     console.log(`${totalSeeded} berita berhasil dibuat.`);
-    console.log('Seed selesai. Login: admin / admin123');
+    console.log('Seed selesai. Login: raja / sdsdsdddsd');
   } catch (err) {
     console.error('Seed error:', err.message);
     process.exit(1);
