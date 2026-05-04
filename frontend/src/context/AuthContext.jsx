@@ -1,30 +1,52 @@
 import { createContext, useState, useEffect, useContext } from 'react';
-import API from '../services/api';
+import { supabase } from '../services/supabase';
 
 const AuthContext = createContext();
+
+const ADMIN_EMAIL_DOMAIN = 'samarinda-terbaru.local';
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      checkAuth();
-    } else {
-      setLoading(false);
-    }
+    // Check active session on mount
+    const initAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        await fetchProfile(session.user.id);
+      } else {
+        setLoading(false);
+      }
+    };
+
+    initAuth();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session) {
+        await fetchProfile(session.user.id);
+      } else {
+        setUser(null);
+        setLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const checkAuth = async () => {
+  const fetchProfile = async (userId) => {
     try {
-      const res = await API.get('/me');
-      if (res.data.success) {
-        setUser(res.data.data);
-      }
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .maybeSingle();
+
+      if (error) throw error;
+      setUser(data);
     } catch (err) {
-      console.error('Auth verification failed', err);
-      localStorage.removeItem('token');
+      console.error('Profile fetch failed', err);
     } finally {
       setLoading(false);
     }
@@ -32,23 +54,27 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
-      const res = await API.post('/login', { username, password });
-      if (res.data.success) {
-        localStorage.setItem('token', res.data.data.token);
-        setUser(res.data.data.user);
-        return { success: true };
-      }
-      return { success: false, message: res.data.message };
+      const email = username.includes('@') ? username : `${username}@${ADMIN_EMAIL_DOMAIN}`;
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      // Profile will be set by the onAuthStateChange listener
+      return { success: true };
     } catch (err) {
       return { 
         success: false, 
-        message: err.response?.data?.message || 'Login gagal.' 
+        message: err.message || 'Login gagal.' 
       };
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
+  const logout = async () => {
+    await supabase.auth.signOut();
     setUser(null);
   };
 

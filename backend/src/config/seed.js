@@ -18,7 +18,8 @@ async function seed() {
       await userModel.create('raja', 'sdsdsdddsd', 'admin');
       console.log('Admin user dibuat: raja / sdsdsdddsd');
     } else {
-      console.log('Admin user "raja" sudah ada, dilewati.');
+      await userModel.changePassword(existingAdmin.id, 'sdsdsdddsd');
+      console.log('Admin user "raja" ditemukan, password telah di-reset menjadi: sdsdsdddsd');
     }
 
     const categories = ['Politik', 'Ekonomi', 'Olahraga', 'Teknologi', 'Budaya', 'Kesehatan', 'Pendidikan'];
