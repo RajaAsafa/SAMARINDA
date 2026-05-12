@@ -94,6 +94,7 @@ const newsModel = {
       .select('*, categories(name)')
       .eq('id', id)
       .eq('is_deleted', false)
+      .gt('expires_at', new Date().toISOString())
       .maybeSingle();
 
     if (error) throw error;
@@ -106,6 +107,7 @@ const newsModel = {
       .select('*, categories(name)')
       .eq('slug', slug)
       .eq('is_deleted', false)
+      .gt('expires_at', new Date().toISOString())
       .maybeSingle();
 
     if (error) throw error;
@@ -170,7 +172,14 @@ const newsModel = {
   },
 
   async extendExpiry(id, days = 30) {
-    const existing = await this.getById(id);
+    const { data: existing, error: existingError } = await supabaseAdmin
+      .from('news')
+      .select('expires_at, expired_at')
+      .eq('id', id)
+      .eq('is_deleted', false)
+      .maybeSingle();
+
+    if (existingError) throw existingError;
     if (!existing) return null;
 
     const currentExpiry = existing.expires_at || existing.expired_at;

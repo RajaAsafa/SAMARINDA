@@ -48,9 +48,11 @@ const AdminLayout = () => {
             <FiMessageSquare style={styles.icon} /> Komentar
           </Link>
 
-          <Link to="/office/pengguna" style={isActive('/office/pengguna') ? styles.activeLink : styles.link}>
-            <FiUsers style={styles.icon} /> Pengguna
-          </Link>
+          {user?.role === 'admin' && (
+            <Link to="/office/pengguna" style={isActive('/office/pengguna') ? styles.activeLink : styles.link}>
+              <FiUsers style={styles.icon} /> Pengguna
+            </Link>
+          )}
         </nav>
 
         <div style={styles.sidebarBottom}>

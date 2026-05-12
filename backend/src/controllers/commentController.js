@@ -1,4 +1,5 @@
 const commentModel = require('../models/commentModel');
+const newsModel = require('../models/newsModel');
 
 module.exports = {
   async getByNews(req, res) {
@@ -16,6 +17,8 @@ module.exports = {
     try {
       const { news_id, name, content } = req.body;
       if (!news_id || !name || !content) return res.status(400).json({ success: false, message: 'Berita, nama, dan komentar wajib diisi.' });
+      const news = await newsModel.getById(parseInt(news_id));
+      if (!news) return res.status(404).json({ success: false, message: 'Berita tidak ditemukan atau sudah expired.' });
       const comment = await commentModel.create({ news_id: parseInt(news_id), name: name.trim(), content: content.trim() });
       res.status(201).json({ success: true, message: 'Komentar berhasil ditambahkan.', data: comment });
     } catch (err) {

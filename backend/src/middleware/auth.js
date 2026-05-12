@@ -1,6 +1,6 @@
 const { supabaseAdmin } = require('../config/db');
 
-module.exports = async (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ success: false, message: 'Akses ditolak. Token tidak ditemukan.' });
@@ -34,3 +34,21 @@ module.exports = async (req, res, next) => {
     return res.status(401).json({ success: false, message: 'Token tidak valid atau sudah kadaluarsa.' });
   }
 };
+
+const requireRole = (...allowedRoles) => (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({ success: false, message: 'Akses ditolak. Token tidak ditemukan.' });
+  }
+
+  if (!allowedRoles.includes(req.user.role)) {
+    return res.status(403).json({ success: false, message: 'Anda tidak memiliki akses untuk aksi ini.' });
+  }
+
+  next();
+};
+
+authMiddleware.requireRole = requireRole;
+authMiddleware.requireStaff = requireRole('admin', 'author');
+authMiddleware.requireAdmin = requireRole('admin');
+
+module.exports = authMiddleware;

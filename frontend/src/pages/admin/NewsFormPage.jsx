@@ -3,8 +3,8 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { FiArrowLeft, FiUpload, FiX } from 'react-icons/fi';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { fetchCategories, createNews, updateNews } from '../../services/adminData';
-import { fetchNewsBySlug } from '../../services/publicData';
+import { fetchCategories, createNews, updateNews, fetchAdminNewsBySlug } from '../../services/adminData';
+import { uploadNewsMedia } from '../../services/storage';
 import { getImageUrl } from '../../utils/helpers';
 
 const NewsFormPage = () => {
@@ -51,7 +51,7 @@ const NewsFormPage = () => {
 
   const loadNewsDetail = async () => {
     try {
-      const news = await fetchNewsBySlug(slug);
+      const news = await fetchAdminNewsBySlug(slug);
       if (news) {
         setNewsId(news.id);
         setFormData({
@@ -112,15 +112,7 @@ const NewsFormPage = () => {
 
   const uploadFile = async (file) => {
     if (!file) return null;
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    // NOTE: Masih menggunakan API backend untuk upload file.
-    // Jika backend mati, upload file akan gagal.
-    const res = await API.post('/upload', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
-    return res.data.data.url;
+    return uploadNewsMedia(file);
   };
 
   const generateSlug = (text) => {
@@ -172,7 +164,7 @@ const NewsFormPage = () => {
 
       navigate('/office/berita');
     } catch (err) {
-      setError('Terjadi kesalahan saat menyimpan berita ke database.');
+      setError(err.message || 'Terjadi kesalahan saat menyimpan berita ke database.');
       setSubmitting(false);
     }
   };

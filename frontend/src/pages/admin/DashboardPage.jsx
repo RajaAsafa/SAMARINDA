@@ -27,7 +27,7 @@ const DashboardPage = () => {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <h3 style={{ fontSize: '20px', color: 'var(--ink)' }}>Dashboard Overview</h3>
-        <Link to="/admin/berita/baru" className="btn btn-primary">
+        <Link to="/office/berita/baru" className="btn btn-primary">
           + Tulis Berita Baru
         </Link>
       </div>

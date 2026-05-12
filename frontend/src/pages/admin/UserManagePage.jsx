@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FiTrash2, FiUserPlus, FiUser } from 'react-icons/fi';
-import API from '../../services/api';
-import { formatDate } from '../../utils/helpers';
-import { useAuth } from '../../context/AuthContext';
+import API, { isApiConfigured } from '../../services/api';
 
 const UserManagePage = () => {
   const [users, setUsers] = useState([]);
@@ -24,6 +22,12 @@ const UserManagePage = () => {
   }, []);
 
   const fetchUsers = async () => {
+    if (!isApiConfigured) {
+      setError('Fitur pengguna memerlukan VITE_API_URL karena pembuatan akun Supabase Auth harus lewat backend service-role.');
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await API.get('/admin/users');
       if (res.data.success) {

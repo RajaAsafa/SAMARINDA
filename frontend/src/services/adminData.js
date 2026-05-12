@@ -17,6 +17,8 @@ const toNewsResponse = (row) => {
 };
 
 export async function fetchAdminNews({ search, category_id, status, page = 1, limit = 10 } = {}) {
+  if (!supabase) throw new Error('Supabase belum dikonfigurasi.');
+
   let query = supabase
     .from('news')
     .select('*, categories(name)', { count: 'exact' })
@@ -50,7 +52,23 @@ export async function fetchAdminNews({ search, category_id, status, page = 1, li
   };
 }
 
+export async function fetchAdminNewsBySlug(slug) {
+  if (!supabase) throw new Error('Supabase belum dikonfigurasi.');
+
+  const { data, error } = await supabase
+    .from('news')
+    .select('*, categories(name)')
+    .eq('slug', slug)
+    .eq('is_deleted', false)
+    .maybeSingle();
+
+  if (error) throw error;
+  return toNewsResponse(data);
+}
+
 export async function deleteNews(id) {
+  if (!supabase) throw new Error('Supabase belum dikonfigurasi.');
+
   const { error } = await supabase
     .from('news')
     .update({ is_deleted: true, updated_at: new Date().toISOString() })
@@ -59,6 +77,8 @@ export async function deleteNews(id) {
 }
 
 export async function createNews(payload) {
+  if (!supabase) throw new Error('Supabase belum dikonfigurasi.');
+
   const { data, error } = await supabase
     .from('news')
     .insert([payload])
@@ -69,6 +89,8 @@ export async function createNews(payload) {
 }
 
 export async function updateNews(id, payload) {
+  if (!supabase) throw new Error('Supabase belum dikonfigurasi.');
+
   const { data, error } = await supabase
     .from('news')
     .update({ ...payload, updated_at: new Date().toISOString() })
@@ -80,6 +102,8 @@ export async function updateNews(id, payload) {
 }
 
 export async function extendNews(id, days = 30) {
+  if (!supabase) throw new Error('Supabase belum dikonfigurasi.');
+
   const newDate = new Date();
   newDate.setDate(newDate.getDate() + days);
   const { data, error } = await supabase
@@ -96,6 +120,8 @@ export async function extendNews(id, days = 30) {
 }
 
 export async function fetchAdminStats() {
+  if (!supabase) throw new Error('Supabase belum dikonfigurasi.');
+
   const { data, error } = await supabase
     .from('news')
     .select('is_featured, is_deleted, expires_at');
@@ -115,6 +141,8 @@ export async function fetchAdminStats() {
 // ─── Categories ────────────────────────────────────────────────────────────────
 
 export async function fetchCategories() {
+  if (!supabase) throw new Error('Supabase belum dikonfigurasi.');
+
   const { data, error } = await supabase
     .from('categories')
     .select('*')
@@ -124,6 +152,8 @@ export async function fetchCategories() {
 }
 
 export async function createCategory(name) {
+  if (!supabase) throw new Error('Supabase belum dikonfigurasi.');
+
   const { data, error } = await supabase
     .from('categories')
     .insert([{ name }])
@@ -134,6 +164,8 @@ export async function createCategory(name) {
 }
 
 export async function updateCategory(id, name) {
+  if (!supabase) throw new Error('Supabase belum dikonfigurasi.');
+
   const { data, error } = await supabase
     .from('categories')
     .update({ name, updated_at: new Date().toISOString() })
@@ -145,6 +177,8 @@ export async function updateCategory(id, name) {
 }
 
 export async function deleteCategory(id) {
+  if (!supabase) throw new Error('Supabase belum dikonfigurasi.');
+
   const { error } = await supabase
     .from('categories')
     .delete()
@@ -155,6 +189,8 @@ export async function deleteCategory(id) {
 // ─── Comments ──────────────────────────────────────────────────────────────────
 
 export async function fetchAdminComments() {
+  if (!supabase) throw new Error('Supabase belum dikonfigurasi.');
+
   const { data, error } = await supabase
     .from('comments')
     .select('*, news(title)')
@@ -168,6 +204,8 @@ export async function fetchAdminComments() {
 }
 
 export async function deleteComment(id) {
+  if (!supabase) throw new Error('Supabase belum dikonfigurasi.');
+
   const { error } = await supabase
     .from('comments')
     .delete()

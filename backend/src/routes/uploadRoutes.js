@@ -4,12 +4,13 @@ const router = express.Router();
 const upload = require('../middleware/upload');
 const authMiddleware = require('../middleware/auth');
 const { supabaseAdmin } = require('../config/db');
+const { requireStaff } = authMiddleware;
 
 const BUCKET_NAME = process.env.SUPABASE_STORAGE_BUCKET || 'news-media';
 
 const getFolderByMime = (mimetype) => (mimetype.startsWith('video/') ? 'videos' : 'images');
 
-router.post('/upload', authMiddleware, upload.single('file'), async (req, res) => {
+router.post('/upload', authMiddleware, requireStaff, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ success: false, message: 'Tidak ada file yang diupload.' });
 

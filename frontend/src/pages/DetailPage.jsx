@@ -4,7 +4,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CommentSection from '../components/CommentSection';
 import { fetchNewsBySlug } from '../services/publicData';
-import { getImageUrl, formatDisplayDate } from '../utils/helpers';
+import { getImageUrl, formatDisplayDate, sanitizeHtml } from '../utils/helpers';
 import { FiClock, FiTag, FiArrowLeft } from 'react-icons/fi';
 
 const DetailPage = () => {
@@ -77,9 +77,9 @@ const DetailPage = () => {
       const parts = news.content.split('[video]');
       return (
         <>
-          <div style={styles.content} className="rich-text-content" dangerouslySetInnerHTML={{ __html: parts[0] }} />
+          <div style={styles.content} className="rich-text-content" dangerouslySetInnerHTML={{ __html: sanitizeHtml(parts[0]) }} />
           {renderVideo()}
-          <div style={styles.content} className="rich-text-content" dangerouslySetInnerHTML={{ __html: parts[1] }} />
+          <div style={styles.content} className="rich-text-content" dangerouslySetInnerHTML={{ __html: sanitizeHtml(parts[1]) }} />
         </>
       );
     }
@@ -88,7 +88,7 @@ const DetailPage = () => {
       <div 
         style={styles.content} 
         className="rich-text-content"
-        dangerouslySetInnerHTML={{ __html: news.content }} 
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(news.content) }} 
       />
     );
   };

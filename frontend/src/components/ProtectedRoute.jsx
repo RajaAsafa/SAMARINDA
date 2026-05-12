@@ -13,7 +13,7 @@ const ProtectedRoute = ({ children }) => {
     );
   }
 
-  if (!user || user.username !== 'raja') {
+  if (!user || !['admin', 'author'].includes(user.role)) {
     return <Navigate to="/staff-only" state={{ from: location }} replace />;
   }
 

@@ -56,6 +56,7 @@ Buat `frontend/.env` berdasarkan `frontend/.env.example`:
 ```env
 VITE_SUPABASE_URL=
 VITE_SUPABASE_ANON_KEY=
+VITE_SUPABASE_STORAGE_BUCKET=news-media
 VITE_API_URL=http://localhost:5000/api
 ```
 
@@ -64,10 +65,13 @@ Untuk Cloudflare Pages, masukkan environment variable berikut:
 ```env
 VITE_SUPABASE_URL=https://PROJECT_ID.supabase.co
 VITE_SUPABASE_ANON_KEY=SUPABASE_ANON_PUBLIC_KEY
+VITE_SUPABASE_STORAGE_BUCKET=news-media
 VITE_API_URL=https://domain-backend-anda.com/api
 ```
 
 Jangan masukkan `SUPABASE_SERVICE_ROLE_KEY` ke Cloudflare Pages.
+
+Catatan: halaman publik, login admin, data berita, kategori, komentar, dan upload media berjalan langsung ke Supabase dari Cloudflare Pages. `VITE_API_URL` hanya wajib untuk fitur yang masih membutuhkan backend Node.js dengan `SUPABASE_SERVICE_ROLE_KEY`, seperti manajemen pengguna.
 
 ## 5. Test Lokal
 
@@ -135,7 +139,7 @@ Jika repository dihubungkan dari root monorepo, set root directory ke `frontend`
 
 Cloudflare Pages hanya men-deploy frontend statis. Backend Express tetap perlu di-deploy ke platform Node.js seperti Render, Railway, Fly.io, VPS, atau Cloudflare Workers dengan adaptasi terpisah.
 
-Setelah backend online, ubah `VITE_API_URL` di Cloudflare Pages menjadi URL backend production, misalnya:
+Jika ingin memakai fitur manajemen pengguna dari dashboard, backend Express harus online. Setelah backend online, ubah `VITE_API_URL` di Cloudflare Pages menjadi URL backend production, misalnya:
 
 ```env
 VITE_API_URL=https://api.domain-anda.com/api

@@ -10,6 +10,11 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!supabase) {
+      setLoading(false);
+      return;
+    }
+
     // Check active session on mount
     const initAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -45,14 +50,24 @@ export const AuthProvider = ({ children }) => {
 
       if (error) throw error;
       setUser(data);
+      return data;
     } catch (err) {
       console.error('Profile fetch failed', err);
+      setUser(null);
+      return null;
     } finally {
       setLoading(false);
     }
   };
 
   const login = async (username, password) => {
+    if (!supabase) {
+      return {
+        success: false,
+        message: 'Supabase belum dikonfigurasi.',
+      };
+    }
+
     try {
       const email = username.includes('@') ? username : `${username}@${ADMIN_EMAIL_DOMAIN}`;
       
@@ -63,7 +78,15 @@ export const AuthProvider = ({ children }) => {
 
       if (error) throw error;
 
-      // Profile will be set by the onAuthStateChange listener
+      const profile = await fetchProfile(data.user.id);
+      if (!profile) {
+        await supabase.auth.signOut();
+        return {
+          success: false,
+          message: 'Profil pengguna tidak ditemukan.',
+        };
+      }
+
       return { success: true };
     } catch (err) {
       return { 

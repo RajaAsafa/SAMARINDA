@@ -25,11 +25,13 @@ const toNewsResponse = (row) => {
 
 export async function fetchNewsList({ search, category_id, date_from, date_to, page = 1, limit = 9 } = {}) {
   if (!supabase) throw new Error('Supabase belum dikonfigurasi.');
+  const now = new Date().toISOString();
 
   let query = supabase
     .from('news')
     .select('*, categories(name)', { count: 'exact' })
     .eq('is_deleted', false)
+    .gt('expires_at', now)
     .order('created_at', { ascending: false });
 
   if (search) {
@@ -69,12 +71,14 @@ export async function fetchNewsList({ search, category_id, date_from, date_to, p
 
 export async function fetchFeaturedNews(limit = 3) {
   if (!supabase) return [];
+  const now = new Date().toISOString();
 
   const { data, error } = await supabase
     .from('news')
     .select('*, categories(name)')
     .eq('is_featured', true)
     .eq('is_deleted', false)
+    .gt('expires_at', now)
     .order('created_at', { ascending: false })
     .limit(limit);
 
@@ -84,12 +88,14 @@ export async function fetchFeaturedNews(limit = 3) {
 
 export async function fetchNewsBySlug(slug) {
   if (!supabase) return null;
+  const now = new Date().toISOString();
 
   const { data, error } = await supabase
     .from('news')
     .select('*, categories(name)')
     .eq('slug', slug)
     .eq('is_deleted', false)
+    .gt('expires_at', now)
     .maybeSingle();
 
   if (error) throw error;
@@ -114,6 +120,16 @@ export async function fetchCategories() {
 
 export async function fetchCommentsByNewsId(newsId) {
   if (!supabase) return [];
+  const news = await supabase
+    .from('news')
+    .select('id')
+    .eq('id', newsId)
+    .eq('is_deleted', false)
+    .gt('expires_at', new Date().toISOString())
+    .maybeSingle();
+
+  if (news.error) throw news.error;
+  if (!news.data) return [];
 
   const { data, error } = await supabase
     .from('comments')

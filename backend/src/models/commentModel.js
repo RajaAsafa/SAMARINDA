@@ -13,6 +13,17 @@ class CommentModel {
   }
 
   static async getByNewsId(news_id) {
+    const { data: news, error: newsError } = await supabaseAdmin
+      .from('news')
+      .select('id')
+      .eq('id', news_id)
+      .eq('is_deleted', false)
+      .gt('expires_at', new Date().toISOString())
+      .maybeSingle();
+
+    if (newsError) throw newsError;
+    if (!news) return [];
+
     const { data, error } = await supabaseAdmin
       .from('comments')
       .select('*')
