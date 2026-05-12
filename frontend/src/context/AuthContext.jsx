@@ -15,11 +15,17 @@ export const AuthProvider = ({ children }) => {
       return;
     }
 
+    let mounted = true;
+    const loadProfile = async (userId) => {
+      if (!mounted) return;
+      await fetchProfile(userId);
+    };
+
     // Check active session on mount
     const initAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        await fetchProfile(session.user.id);
+        await loadProfile(session.user.id);
       } else {
         setLoading(false);
       }
@@ -28,16 +34,19 @@ export const AuthProvider = ({ children }) => {
     initAuth();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
-        await fetchProfile(session.user.id);
+        setTimeout(() => loadProfile(session.user.id), 0);
       } else {
         setUser(null);
         setLoading(false);
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const fetchProfile = async (userId) => {

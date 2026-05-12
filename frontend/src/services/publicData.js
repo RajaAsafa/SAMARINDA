@@ -6,7 +6,7 @@
  *
  * Halaman admin tetap menggunakan API (backend) karena butuh service_role_key.
  */
-import { supabase } from './supabase';
+import { publicSupabase } from './supabase';
 
 // ─── helpers ───────────────────────────────────────────────────────────────────
 
@@ -24,10 +24,10 @@ const toNewsResponse = (row) => {
 // ─── news ──────────────────────────────────────────────────────────────────────
 
 export async function fetchNewsList({ search, category_id, date_from, date_to, page = 1, limit = 9 } = {}) {
-  if (!supabase) throw new Error('Supabase belum dikonfigurasi.');
+  if (!publicSupabase) throw new Error('Supabase belum dikonfigurasi.');
   const now = new Date().toISOString();
 
-  let query = supabase
+  let query = publicSupabase
     .from('news')
     .select('*, categories(name)', { count: 'exact' })
     .eq('is_deleted', false)
@@ -70,10 +70,10 @@ export async function fetchNewsList({ search, category_id, date_from, date_to, p
 }
 
 export async function fetchFeaturedNews(limit = 3) {
-  if (!supabase) return [];
+  if (!publicSupabase) return [];
   const now = new Date().toISOString();
 
-  const { data, error } = await supabase
+  const { data, error } = await publicSupabase
     .from('news')
     .select('*, categories(name)')
     .eq('is_featured', true)
@@ -87,10 +87,10 @@ export async function fetchFeaturedNews(limit = 3) {
 }
 
 export async function fetchNewsBySlug(slug) {
-  if (!supabase) return null;
+  if (!publicSupabase) return null;
   const now = new Date().toISOString();
 
-  const { data, error } = await supabase
+  const { data, error } = await publicSupabase
     .from('news')
     .select('*, categories(name)')
     .eq('slug', slug)
@@ -105,9 +105,9 @@ export async function fetchNewsBySlug(slug) {
 // ─── categories ────────────────────────────────────────────────────────────────
 
 export async function fetchCategories() {
-  if (!supabase) return [];
+  if (!publicSupabase) return [];
 
-  const { data, error } = await supabase
+  const { data, error } = await publicSupabase
     .from('categories')
     .select('*')
     .order('name', { ascending: true });
@@ -119,8 +119,8 @@ export async function fetchCategories() {
 // ─── comments ──────────────────────────────────────────────────────────────────
 
 export async function fetchCommentsByNewsId(newsId) {
-  if (!supabase) return [];
-  const news = await supabase
+  if (!publicSupabase) return [];
+  const news = await publicSupabase
     .from('news')
     .select('id')
     .eq('id', newsId)
@@ -131,7 +131,7 @@ export async function fetchCommentsByNewsId(newsId) {
   if (news.error) throw news.error;
   if (!news.data) return [];
 
-  const { data, error } = await supabase
+  const { data, error } = await publicSupabase
     .from('comments')
     .select('*')
     .eq('news_id', newsId)
@@ -142,9 +142,9 @@ export async function fetchCommentsByNewsId(newsId) {
 }
 
 export async function postComment({ news_id, name, content }) {
-  if (!supabase) throw new Error('Supabase belum dikonfigurasi.');
+  if (!publicSupabase) throw new Error('Supabase belum dikonfigurasi.');
 
-  const { data, error } = await supabase
+  const { data, error } = await publicSupabase
     .from('comments')
     .insert({ news_id, name, content })
     .select('*')
